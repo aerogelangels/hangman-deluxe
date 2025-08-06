@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="page.css" rel="stylesheet">
+        <script defer src="scripts\word-list.js"></script>
+        <script defer src="scripts\game.js"></script>
+        <script defer src="scripts\animations.js"></script>
+        <script defer src="scripts\sounds.js"></script>
+    </head>
+    <body onload="gameStart()">
+        <div id="content">
+            <div id="ui">
+                <div id="wrongGuesses">
+                    <table id="wrongCounter">
+                        <tr id="wrongGuessRow"></tr>
+                    </table>
+                </div>
+            </div>
+            <div class="screen" id="load_screen">
+                loading bullshit
+            </div>
+            <div id="border"></div>
+            <div id="lettergrid">
+                <div id="category">
+                    <h1 id="catName"></h1>
+                </div>
+                <table id="letters">
+                    <tr id="r1"></tr>
+                    <tr id="r2"></tr>
+                    <tr id="r3"></tr>  
+                    <tr id="r4"></tr> 
+                </table>
+            </div>
+            <div id="keyboard">
+                <table id="keys">
+                    <tr id="keyr1"></tr>
+                    <tr id="keyr2"></tr>
+                </table>
+            </div>
+        </div>
+    </body>
+</html>
