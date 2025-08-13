@@ -4,28 +4,40 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="page.css" rel="stylesheet">
+        <link id="skin" href="page.css" rel="stylesheet">
         <script defer src="scripts\word-list.js"></script>
         <script defer src="scripts\game.js"></script>
         <script defer src="scripts\animations.js"></script>
         <script defer src="scripts\sounds.js"></script>
     </head>
-    <body onload="gameStart()">
+    <body onload="init()">
         <div id="content">
             <div id="ui">
-                <div id="wrongGuesses">
-                    <table id="wrongCounter">
-                        <tr id="wrongGuessRow"></tr>
-                    </table>
+                <div id="counters">
+                    <div id="wrongGuesses">
+                        <table id="wrongCounter">
+                            <tr id="wrongGuessRow"></tr>
+                        </table>
+                    </div>
+                    <div id="roundWins">
+                        <table id="winCounter">
+                            <tr id="winRow"></tr>
+                        </table>
+                    </div>
                 </div>
             </div>
             <div class="screen" id="load_screen">
-                loading bullshit
+                <video width="480" height="360" autoplay>
+                    <source src="assets/bogo_games_1.mp4" type="video/mp4">
+                </video>
             </div>
             <div id="border"></div>
             <div id="lettergrid">
                 <div id="category">
                     <h1 id="catName"></h1>
+                </div>
+                <div id="bowlingStuf">
+                    <h1 id="niceJob"></h1>
                 </div>
                 <table id="letters">
                     <tr id="r1"></tr>

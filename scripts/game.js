@@ -10,6 +10,8 @@ let answerKey = new Set();
 let chosenWords = new Set();
 let wrongGuesses = 0;
 let wins = 0;
+let winThreshold = 10;
+let wrongGuessThreshold = 4;
 
 for (let i = 1; i<=4; i++) {
   for (let j = 1; j<=13; j++) {
@@ -34,11 +36,33 @@ for (let i = 65; i <= 90; i++) {
   key.innerHTML = letter;
 }
 
-for (let i = 1; i <= 4; i++) {
+for (let i = 1; i <= wrongGuessThreshold; i++) {
   const wrongGuess = document.createElement("td");
   document.getElementById("wrongGuessRow").append(wrongGuess);
   wrongGuess.className = "wrong_square";
   wrongGuess.id = "wrong" + i;
+}
+
+for (let i = 1; i<= winThreshold; i++) {
+  const win = document.createElement("td");
+  document.getElementById("winRow").append(win);
+  win.className = "win_square";
+  win.id = "win" + i;
+}
+
+// Gamemode Toggles
+
+function enableNormalMode() {
+  winThreshold = 10;
+  wrongGuessThreshold = 4;
+  document.getElementById('skin').href="page.css";
+}
+
+function enableHardMode() {
+  winThreshold = 20;
+  wrongGuessThreshold = 3;
+  document.getElementById('skin').href="hardmode.css";
+  document.getElementById('wrong4').className = "disabled_wrong_square";
 }
 
 // Setup Methods
@@ -53,24 +77,6 @@ function areSetsEqual(setA, setB) {
     }
   }
   return true;
-}
-
-function drawMenu() {
-  const menu = document.createElement("div");
-  menu.className = "screen";
-  menu.id = "menu";
-  content.appendChild(menu);
-  const startbutton = document.createElement("div");
-  startbutton.id="start_button";
-  startbutton.innerHTML = "PLAY"
-  menu.appendChild(startbutton);
-  startbutton.addEventListener('click', () => {
-    menu.replaceChildren();
-    menu.remove();
-    playBGM();
-    clearBoard();
-    startRound();
-  })
 }
 
 function handleKeyDown(event) {
@@ -106,12 +112,6 @@ function fitAnswerToGrid() {
   for (let j = 1; j<=14; j++) {
     if (n < griddy.length && pos < griddy[n].length) {
       document.getElementById("r" + i + "c" + j).innerHTML = griddy[n].charAt(pos);
-      if (document.getElementById("r" + i + "c" + j).innerHTML) {
-        document.getElementById("r" + i + "c" + j).className = "activeLetterSpace";
-      }
-      if (document.getElementById("r" + i + "c" + j).innerHTML == '-' || document.getElementById("r" + i + "c" + j).innerHTML == "'" || document.getElementById("r" + i + "c" + j).innerHTML == ",") {
-        document.getElementById("r" + i + "c" + j).className = "solvedLetterSpace";
-      }
       pos++;
     } else {
       n++;
@@ -131,11 +131,18 @@ function fitAnswerToGrid() {
 
 function resetWrongCounter() {
   wrongGuesses=0;
-  setTimeout(() => {
-    for (let i = 1; i <= 4; i++) {
-      document.getElementById("wrong" + i).className = "wrong_square"
-    }
-  })
+}
+
+function redrawWrongCounter() {
+  for (let i=1;i<=temp;i++) {
+    document.getElementById('wrong'+i).remove();
+  }
+  for (let i=1;i<=wrongGuessThreshold;i++) {
+    const wrongGuess = document.createElement("td");
+    document.getElementById("wrongGuessRow").append(wrongGuess);
+    wrongGuess.className = "wrong_square";
+    wrongGuess.id = "wrong" + i;
+  }
 }
 
 function guessLetter() {
@@ -144,7 +151,7 @@ function guessLetter() {
   if (answerKey.has(this.innerHTML)) {
     for (let i = 1; i<=4; i++) {
       for (let j = 1; j<=13; j++) {
-        if (document.getElementById("r" + i + "c" + j).innerHTML == this.innerHTML) {
+        if (document.getElementById("r" + i + "c" + j).innerHTML === this.innerHTML) {
           document.getElementById("r" + i + "c" + j).className = 'solvedLetterSpace';
           correct.add(this.innerHTML);
         }
@@ -155,28 +162,43 @@ function guessLetter() {
     console.log(wrongGuesses);
     document.getElementById("wrong" + wrongGuesses).className = "active_wrong_square";
   }
-  if (wrongGuesses >= 4) {
+  if (wrongGuesses >= wrongGuessThreshold) {
     clearEventListeners();
     wins=0;
     chosenWords = new Set();
-    drawLoseScreen();
+    for (let i = 1; i<=4; i++) {
+      for (let j = 1; j<=13; j++) {
+        if (document.getElementById("r" + i + "c" + j).innerHTML != '') {
+          document.getElementById("r" + i + "c" + j).className = 'solvedLetterSpace';
+        }
+      }
+    }
+    setTimeout(lossAnim, 1500);
+    setTimeout(drawLoseScreen, 3500);
   }
   if (areSetsEqual(correct,answerKey)) {
     wins++;
     console.log('You win!');
     clearEventListeners();
-    setTimeout(wrongCounterWipe, 500);
-    setTimeout(animateTiles, 500)
-    if (wins < 10) {
-      setTimeout(swingOut, 2000);
-      setTimeout(swingIn, 4000);
-      setTimeout(clearBoard, 3000);
-      setTimeout(startRound, 3000);
+    catNameAnim();
+    setTimeout(() => {document.getElementById("win" + wins).className = "active_win_square";},2000);
+    if (wins < winThreshold) {
+      setTimeout(startRound, 1000);
     } else {
       wins=0;
       chosenWords = new Set();
+      setTimeout(animateTiles, 1000);
       setTimeout(winScreen,2000);
     }
+  }
+}
+
+function addEventListeners() {
+  document.addEventListener('keypress', handleKeyDown);
+  for (let i = 65; i <= 90; i++) {
+    const key = document.getElementById(String.fromCharCode(i));
+    key.className="key";
+    key.addEventListener('click', guessLetter);
   }
 }
 
@@ -191,35 +213,45 @@ function clearEventListeners() {
 function clearBoard() {
   for (let i = 1; i<=4; i++) {
     for (let j = 1; j<=13; j++) {
-      document.getElementById("r" + i + "c" + j).className = 'letterSpace';
       document.getElementById("r" + i + "c" + j).innerHTML = '';
     }
   }
 }
 
-
 //Methods That Run Game
 
-function gameStart() {
-  drawMenu();
+function init() {
   setTimeout(() => {
     const load_screen = document.getElementById('load_screen');
     load_screen.replaceChildren();
     load_screen.remove();
-  }, 3000)
+    startRound();
+  }, 5192)
 }
 
 function startRound() {
-  correct = new Set();
-  answerKey = new Set();
-  resetWrongCounter();
-  chooseWord();
-  fitAnswerToGrid();
-  document.addEventListener('keypress', handleKeyDown);
-  for (let i = 65; i <= 90; i++) {
-    const key = document.getElementById(String.fromCharCode(i));
-    key.className="key";
-    key.addEventListener('click', guessLetter);
+  if (wins <= 0) {
+    clearBoard();
+    correct = new Set();
+    answerKey = new Set();
+    resetWrongCounter();
+    chooseWord();
+    fitAnswerToGrid();
+    setTimeout(revealTiles, 500);
+    setTimeout(addEventListeners, 1000);
+  } else {
+    resetWrongCounter();
+    animateTiles();
+    wrongCounterWipe();
+    setTimeout(() => {
+      clearBoard();
+      correct = new Set();
+      answerKey = new Set();
+      chooseWord();
+      fitAnswerToGrid();
+      setTimeout(revealTiles, 1000);
+      setTimeout(addEventListeners, 2000);
+    }, 1000)
   }
 }
 
@@ -245,13 +277,10 @@ function drawLoseScreen() {
   retry.addEventListener('click', () => {
     screen.replaceChildren();
     screen.remove();
+    wrongCounterWipe();
+    regressWinCounter();
     clearBoard();
     startRound();
-  })
-  menu.addEventListener('click', () => {
-    screen.replaceChildren();
-    screen.remove();
-    drawMenu();
   })
 }
  
@@ -277,13 +306,13 @@ function winScreen() {
   playagain.addEventListener('click', () => {
     screen.replaceChildren();
     screen.remove();
+    for (let i=1;i<=wrongGuessThreshold;i++) {
+      document.getElementById("wrong"+i).className = "wrong_square";
+    }
+    regressWinCounter();
     clearBoard();
     startRound();
-  })
-  menu.addEventListener('click', () => {
-    screen.replaceChildren();
-    screen.remove();
-    drawMenu();
+    setTimeout(() => {document.getElementById('bowlingStuf').classList.remove('moved');}, 0)
   })
 }
 
